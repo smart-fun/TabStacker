@@ -2,9 +2,11 @@
 
 **Tab Stacker** is an Android Studio library that allows to handle a **Fragment history for each Tab**, like it is done on iOS apps natively.
 
-So each Tab has its own stack of Fragments. Fragments can be added / replaced / removed with **animations**. When the user presses back, the top Fragment from the current Tab stack is dismissed.
+![alt text](app\src\main\res\mipmap-xxxhdpi\ic_launcher.png?raw=true "Tab Stacker")
 
-When a stack is removed and restored (during a Tab change, or a system cleanup like when rotating the device), a **save and restore** mechanism allows you to keep your Fragments up-to-date.
+Each Tab has its own stack of Fragments, that can be added, replaced or removed using **animations**. When the user presses back, the top Fragment from the current Tab stack is dismissed.
+
+When a complete stack is removed and restored (during a Tab change, or a system cleanup like when rotating the device), a **save and restore** mechanism allows you to keep your Fragments up-to-date.
 
 Tab Stacker uses **Support Fragments**. It is recommended to always use Support Fragments as they are compatible with older devices, and the last bugs are fixed for all devices. See how to migrate to Support Fragment in the corresponding section below.
 
