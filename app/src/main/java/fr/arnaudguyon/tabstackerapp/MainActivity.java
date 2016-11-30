@@ -13,7 +13,6 @@ import fr.arnaudguyon.tabstacker.TabStacker;
 public class MainActivity extends FragmentActivity {
 
     private static final String TAG = "MainActivity";
-    private static final String MULTISTACK_SAVED_INSTANCE = "MultiStackSavedInstance";
 
     private TabStacker mTabStacker;
     private AnimationSet mAddAnimation = new Anims.SlideFromBottom();
@@ -37,13 +36,12 @@ public class MainActivity extends FragmentActivity {
 
         setContentView(R.layout.mainactivity);
 
+        mTabStacker = new TabStacker(getSupportFragmentManager(), R.id.fragmentHolder);
         if (savedInstanceState == null) {
-            mTabStacker = new TabStacker(getSupportFragmentManager(), R.id.fragmentHolder);
             onClickOnTab(Tab.TAB_A);
         } else {
             mTabStacker = new TabStacker(getSupportFragmentManager(), R.id.fragmentHolder);
-            Bundle bundle = savedInstanceState.getBundle(MULTISTACK_SAVED_INSTANCE);
-            mTabStacker.restoreInstance(bundle);
+            mTabStacker.restoreInstance(savedInstanceState);
             Tab selectedTab = Tab.valueOf(mTabStacker.getCurrentTabName());
             onClickOnTab(selectedTab);
         }
@@ -132,9 +130,8 @@ public class MainActivity extends FragmentActivity {
 
     @Override
     protected void onSaveInstanceState(Bundle outState) {
-        // TODO: simplify this (no bundle creation). IMPORTANT TO CALL BEFORE onSaveInstanceState
-        Bundle bundle = mTabStacker.saveInstance();
-        outState.putBundle(MULTISTACK_SAVED_INSTANCE, bundle);
+        // Keep this first
+        mTabStacker.saveInstance(outState);
 
         super.onSaveInstanceState(outState);
     }

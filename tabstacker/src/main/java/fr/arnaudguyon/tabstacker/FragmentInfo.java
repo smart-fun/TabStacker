@@ -30,18 +30,27 @@ class FragmentInfo {
         String className = bundle.getString(BUNDLE_FRAGMENT_CLASS);
         Fragment fragment;
         try {
+            // Class
             Class<Fragment> fragmentClass = (Class<Fragment>) Class.forName(className);
             fragment = fragmentClass.newInstance();
+
+            // Arguments
             Bundle arguments = bundle.getBundle(BUNDLE_FRAGMENT_ARGUMENTS);
             fragment.setArguments(arguments);
+
+            // Dynamic Data
             Bundle fragmentData = bundle.getBundle(BUNDLE_FRAGMENT_DATA);
             if ((fragmentData != null) && (fragment instanceof TabStacker.TabStackInterface)) {
                 ((TabStacker.TabStackInterface) fragment).onRestoreTabFragmentInstance(fragmentData);
             }
 
+            // Type of push
             TabStacker.Type type = TabStacker.Type.valueOf(bundle.getString(BUNDLE_TYPE));
+
+            // Animations
             Bundle animation = bundle.getBundle(BUNDLE_ANIMATION);
             AnimationSet animationSet = AnimationSet.restoreInstance(animation);
+
             return new FragmentInfo(fragment, animationSet, type);
 
         } catch (ClassNotFoundException e1) {
@@ -57,16 +66,27 @@ class FragmentInfo {
     Bundle saveInstance() {
         Bundle bundle = new Bundle();
 
+        // Class
         String fragmentClassName = mFragment.getClass().getName();
-        Bundle fragmentArguments = mFragment.getArguments();
-        Bundle fragmentData = (mFragment instanceof TabStacker.TabStackInterface) ? ((TabStacker.TabStackInterface) mFragment).onSaveTabFragmentInstance() : null;
-        String type = mType.name();
-        Bundle animation = (mAnimationSet != null) ? mAnimationSet.saveInstance() : null;
-
         bundle.putString(BUNDLE_FRAGMENT_CLASS, fragmentClassName);
+
+        // Arguments
+        Bundle fragmentArguments = mFragment.getArguments();
         bundle.putBundle(BUNDLE_FRAGMENT_ARGUMENTS, fragmentArguments);
-        bundle.putBundle(BUNDLE_FRAGMENT_DATA, fragmentData);
+
+        // Dynamic data
+        if (mFragment instanceof TabStacker.TabStackInterface) {
+            Bundle fragmentData = new Bundle();
+            ((TabStacker.TabStackInterface) mFragment).onSaveTabFragmentInstance(fragmentData);
+            bundle.putBundle(BUNDLE_FRAGMENT_DATA, fragmentData);
+        }
+
+        // Type of push
+        String type = mType.name();
         bundle.putString(BUNDLE_TYPE, type);
+
+        // Animations
+        Bundle animation = (mAnimationSet != null) ? mAnimationSet.saveInstance() : null;
         bundle.putBundle(BUNDLE_ANIMATION, animation);
 
         return bundle;
