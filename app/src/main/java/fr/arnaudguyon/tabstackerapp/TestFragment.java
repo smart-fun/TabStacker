@@ -21,11 +21,11 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
 
     private static final String TAG = "TestFragment";
 
-    private static final String PARAM_TITLE = "title";
-    private static final String PARAM_COLOR = "randomColor";
-    private static final String PARAM_RANDOM_TOP = "randomCentering";
+    private static final String ARGUMENT_TITLE = "title";
+    private static final String ARGUMENT_COLOR = "randomColor";
+    private static final String ARGUMENT_RANDOM_TOP = "randomTop";
 
-    private static final String DATA_CHECKBOX = "checkBox";
+    private static final String DYNAMIC_DATA_CHECKBOX = "checkBox";
 
     private boolean mCheckBoxValue;
     private View mView;
@@ -33,9 +33,9 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
     public static TestFragment createInstance(String title) {
         TestFragment fragment = new TestFragment();
         Bundle bundle = new Bundle();
-        bundle.putString(PARAM_TITLE, title);
-        bundle.putInt(PARAM_COLOR, generateRandomColor());
-        bundle.putFloat(PARAM_RANDOM_TOP, (float) (Math.random() * 0.6 + 0.2));
+        bundle.putString(ARGUMENT_TITLE, title);
+        bundle.putInt(ARGUMENT_COLOR, generateRandomColor());
+        bundle.putFloat(ARGUMENT_RANDOM_TOP, (float) (Math.random() * 0.6 + 0.2));
         fragment.setArguments(bundle);
         return fragment;
     }
@@ -52,9 +52,9 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
 
         Bundle arguments = getArguments();
 
-        String title = arguments.getString(PARAM_TITLE);
-        int color = arguments.getInt(PARAM_COLOR);
-        float randomTop = arguments.getFloat(PARAM_RANDOM_TOP);
+        String title = arguments.getString(ARGUMENT_TITLE);
+        int color = arguments.getInt(ARGUMENT_COLOR);
+        float randomTop = arguments.getFloat(ARGUMENT_RANDOM_TOP);
 
         // SET BACKGROUND RANDOM COLOR
         view.setBackgroundColor(color);
@@ -101,7 +101,7 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
     public void onTabFragmentPresented(TabStacker.PresentReason reason) {
         // Logs the Reason and Fragment name
         Bundle arguments = getArguments();
-        String title = arguments.getString(PARAM_TITLE);
+        String title = arguments.getString(ARGUMENT_TITLE);
         Log.i(TAG, "PRESENT " + title + " (" + reason.name() + ")");
     }
 
@@ -109,27 +109,23 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
     public void onTabFragmentDismissed(TabStacker.DismissReason reason) {
         // Logs the Reason and Fragment name
         Bundle arguments = getArguments();
-        String title = arguments.getString(PARAM_TITLE);
+        String title = arguments.getString(ARGUMENT_TITLE);
         Log.i(TAG, "DISMISS " + title + " (" + reason.name() + ")");
     }
 
     @Override
-    public Bundle onSaveTabFragmentInstance() {
-        if (mView == null) {    // has not been presented since last save, put last saved values
-            Bundle bundle = new Bundle();
-            bundle.putBoolean(DATA_CHECKBOX, mCheckBoxValue);
-            return bundle;
+    public void onSaveTabFragmentInstance(Bundle outState) {
+        if (mView == null) {    // the Fragment has not been presented since the last save, so put the last saved values
+            outState.putBoolean(DYNAMIC_DATA_CHECKBOX, mCheckBoxValue);
         } else {
-            Bundle bundle = new Bundle();
             CheckBox optionCheckBox = (CheckBox) mView.findViewById(R.id.optionCheckBox);
-            bundle.putBoolean(DATA_CHECKBOX, optionCheckBox.isChecked());
-            return bundle;
+            outState.putBoolean(DYNAMIC_DATA_CHECKBOX, optionCheckBox.isChecked());
         }
     }
 
     @Override
-    public void onRestoreTabFragmentInstance(Bundle bundle) {
-        mCheckBoxValue = bundle.getBoolean(DATA_CHECKBOX);
+    public void onRestoreTabFragmentInstance(Bundle savedInstanceState) {
+        mCheckBoxValue = savedInstanceState.getBoolean(DYNAMIC_DATA_CHECKBOX);
     }
 
     @Override

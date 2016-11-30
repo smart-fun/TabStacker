@@ -20,8 +20,13 @@ import java.util.Set;
 // TODO: doc explain IllegalStateException
 // TODO: explain compat fragment, and simple migrate (import + getFragmentManager / Child)
 // TODO: Publish app test in Beta channel and provide a link so that users can try it.
+    // see https://code.google.com/p/android/issues/detail?id=207269
+    // see https://code.google.com/p/android/issues/detail?id=25517
 
 public class TabStacker {
+
+    private static final String BUNDLE_TAB_STACKER = "TabStacker";
+
 
     enum Type {
         Replace,
@@ -366,8 +371,8 @@ public class TabStacker {
          */
         void onTabFragmentDismissed(DismissReason reason);
 
-        Bundle onSaveTabFragmentInstance();
-        void onRestoreTabFragmentInstance(Bundle bundle);
+        void onSaveTabFragmentInstance(Bundle outState);
+        void onRestoreTabFragmentInstance(Bundle savedInstanceState);
     }
 
     private static final String BUNDLE_CURRENT_TAB = "CurrentTab";
@@ -375,7 +380,7 @@ public class TabStacker {
     private static final String BUNDLE_FRAGMENT_PREFIX = "FragmentInfo_";
     private static final String BUNDLE_STACKSIZE_POSTFIX = "_stackSize";
 
-    public Bundle saveInstance() {
+    public void saveInstance(Bundle outState) {
         Bundle bundle = new Bundle();
         bundle.putString(BUNDLE_CURRENT_TAB, mCurrentTab);  // Current Tab
 
@@ -406,31 +411,34 @@ public class TabStacker {
             transaction.commitAllowingStateLoss();
         }
 
-        return bundle;
+        outState.putBundle(BUNDLE_TAB_STACKER, bundle);
     }
 
-    public void restoreInstance(Bundle bundle) {
-        mCurrentTab = bundle.getString(BUNDLE_CURRENT_TAB);
-        ArrayList<String> tabNames = bundle.getStringArrayList(BUNDLE_TAB_NAMES);
-        if (tabNames != null) {
-            for (String tabName : tabNames) {
-
-                ArrayList<FragmentInfo> stackInfos = mStacks.get(tabName);
-                if (stackInfos == null) {
-                    stackInfos = new ArrayList<>();
-                    mStacks.put(tabName, stackInfos);
-                } else {
-                    stackInfos.clear();
-                }
-
-                Bundle stackBundle = bundle.getBundle(tabName);
-                String stackSizeKey = tabName + BUNDLE_STACKSIZE_POSTFIX;
-                int stackSize = stackBundle.getInt(stackSizeKey);
-                for(int i=0; i<stackSize; ++ i) {
-                    String fragmentInfoKey = BUNDLE_FRAGMENT_PREFIX + i;
-                    Bundle fragmentInfoBundle = stackBundle.getBundle(fragmentInfoKey);
-                    FragmentInfo fragmentInfo = FragmentInfo.restoreInstance(fragmentInfoBundle);
-                    stackInfos.add(fragmentInfo);
+    public void restoreInstance(Bundle savedInstanceState) {
+        if (savedInstanceState.containsKey(BUNDLE_TAB_STACKER)) {
+            Bundle bundle = savedInstanceState.getBundle(BUNDLE_TAB_STACKER);
+            if (bundle != null) {
+                mCurrentTab = bundle.getString(BUNDLE_CURRENT_TAB);
+                ArrayList<String> tabNames = bundle.getStringArrayList(BUNDLE_TAB_NAMES);
+                if (tabNames != null) {
+                    for (String tabName : tabNames) {
+                        ArrayList<FragmentInfo> stackInfos = mStacks.get(tabName);
+                        if (stackInfos == null) {
+                            stackInfos = new ArrayList<>();
+                            mStacks.put(tabName, stackInfos);
+                        } else {
+                            stackInfos.clear();
+                        }
+                        Bundle stackBundle = bundle.getBundle(tabName);
+                        String stackSizeKey = tabName + BUNDLE_STACKSIZE_POSTFIX;
+                        int stackSize = stackBundle.getInt(stackSizeKey);
+                        for (int i = 0; i < stackSize; ++i) {
+                            String fragmentInfoKey = BUNDLE_FRAGMENT_PREFIX + i;
+                            Bundle fragmentInfoBundle = stackBundle.getBundle(fragmentInfoKey);
+                            FragmentInfo fragmentInfo = FragmentInfo.restoreInstance(fragmentInfoBundle);
+                            stackInfos.add(fragmentInfo);
+                        }
+                    }
                 }
             }
         }
