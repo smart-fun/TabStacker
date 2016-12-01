@@ -128,8 +128,5 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
         mCheckBoxValue = savedInstanceState.getBoolean(DYNAMIC_DATA_CHECKBOX);
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
+
 }

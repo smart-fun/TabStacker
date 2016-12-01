@@ -253,7 +253,7 @@ Add the libary dependency to your **APP** build.gradle file
 
 ```
 dependencies {
-    compile 'com.github.smart-fun:TabStacker:0.8.0'    // add this line
+    compile 'com.github.smart-fun:TabStacker:0.8.1'    // add this line
 }
 ```
 
