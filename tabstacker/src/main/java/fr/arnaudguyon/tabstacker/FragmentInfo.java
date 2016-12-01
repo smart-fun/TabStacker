@@ -2,6 +2,7 @@ package fr.arnaudguyon.tabstacker;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.view.View;
 
 /**
  * Created by aguyon on 28.11.16.
@@ -12,12 +13,14 @@ class FragmentInfo {
     private static final String BUNDLE_FRAGMENT_CLASS = "fragment_class";
     private static final String BUNDLE_FRAGMENT_ARGUMENTS = "fragment_arguments";
     private static final String BUNDLE_FRAGMENT_DATA = "fragment_data";
+    private static final String BUNDLE_VIEW_HIERARCHY = "ViewHierarchy";
     private static final String BUNDLE_TYPE = "type";
     private static final String BUNDLE_ANIMATION = "animation";
 
     Fragment mFragment;
     AnimationSet mAnimationSet;
     TabStacker.Type mType;
+    private Bundle mSavedView;
 
     FragmentInfo(Fragment fragment, AnimationSet animationSet, TabStacker.Type type) {
         mFragment = fragment;
@@ -51,7 +54,12 @@ class FragmentInfo {
             Bundle animation = bundle.getBundle(BUNDLE_ANIMATION);
             AnimationSet animationSet = AnimationSet.restoreInstance(animation);
 
-            return new FragmentInfo(fragment, animationSet, type);
+            FragmentInfo fragmentInfo = new FragmentInfo(fragment, animationSet, type);
+
+            // View Hierarchy
+            fragmentInfo.mSavedView = bundle.getBundle(BUNDLE_VIEW_HIERARCHY);
+
+            return fragmentInfo;
 
         } catch (ClassNotFoundException e1) {
             e1.printStackTrace();
@@ -77,8 +85,16 @@ class FragmentInfo {
         // Dynamic data
         if (mFragment instanceof TabStacker.TabStackInterface) {
             Bundle fragmentData = new Bundle();
-            ((TabStacker.TabStackInterface) mFragment).onSaveTabFragmentInstance(fragmentData);
+            View fragmentView = ((TabStacker.TabStackInterface) mFragment).onSaveTabFragmentInstance(fragmentData);
             bundle.putBundle(BUNDLE_FRAGMENT_DATA, fragmentData);
+
+            // View Hierarchy
+            if (fragmentView != null) {
+                Bundle viewHierarchy = ViewData.saveViewHierarchy(fragmentView);
+                bundle.putBundle(BUNDLE_VIEW_HIERARCHY, viewHierarchy);
+            } else if (mSavedView != null) {
+                bundle.putBundle(BUNDLE_VIEW_HIERARCHY, mSavedView);
+            }
         }
 
         // Type of push
@@ -90,6 +106,10 @@ class FragmentInfo {
         bundle.putBundle(BUNDLE_ANIMATION, animation);
 
         return bundle;
+    }
+
+    void restoreView(View fragmentView) {
+        ViewData.restoreView(mSavedView, fragmentView);
     }
 
 }

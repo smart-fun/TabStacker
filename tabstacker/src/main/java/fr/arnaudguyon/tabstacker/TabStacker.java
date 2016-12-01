@@ -1,11 +1,13 @@
 package fr.arnaudguyon.tabstacker;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.view.View;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -371,14 +373,19 @@ public class TabStacker {
          */
         void onTabFragmentDismissed(DismissReason reason);
 
-        void onSaveTabFragmentInstance(Bundle outState);
+        View onSaveTabFragmentInstance(Bundle outState);
         void onRestoreTabFragmentInstance(Bundle savedInstanceState);
+    }
+
+    public interface TabStackerOwner {
+        TabStacker getTabStacker();
     }
 
     private static final String BUNDLE_CURRENT_TAB = "CurrentTab";
     private static final String BUNDLE_TAB_NAMES = "TabNames";
     private static final String BUNDLE_FRAGMENT_PREFIX = "FragmentInfo_";
     private static final String BUNDLE_STACKSIZE_POSTFIX = "_stackSize";
+
 
     public void saveInstance(Bundle outState) {
         Bundle bundle = new Bundle();
@@ -445,6 +452,16 @@ public class TabStacker {
 
         notifyAllRestored(mCurrentTab, PresentReason.RESTORING_STACK);
         pushAll(mCurrentTab);
+    }
+
+    public void restoreView(Fragment fragment, View fragmentView) {
+        ArrayList<FragmentInfo> fragmentInfos = mStacks.get(mCurrentTab);
+        for(FragmentInfo fragmentInfo : fragmentInfos) {
+            if (fragmentInfo.mFragment == fragment) {
+                fragmentInfo.restoreView(fragmentView);
+                break;
+            }
+        }
     }
 
 }

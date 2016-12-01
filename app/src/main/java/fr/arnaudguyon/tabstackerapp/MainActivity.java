@@ -3,6 +3,7 @@ package fr.arnaudguyon.tabstackerapp;
 import android.os.Bundle;
 import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
 import android.view.View;
@@ -134,5 +135,9 @@ public class MainActivity extends FragmentActivity {
         mTabStacker.saveInstance(outState);
 
         super.onSaveInstanceState(outState);
+    }
+
+    void restoreView(Fragment fragment, View view) {
+        mTabStacker.restoreView(fragment, view);
     }
 }

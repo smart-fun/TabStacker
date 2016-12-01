@@ -7,7 +7,6 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.CheckBox;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -25,9 +24,6 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
     private static final String ARGUMENT_COLOR = "color";
     private static final String ARGUMENT_RANDOM_TOP = "randomTop";
 
-    private static final String DYNAMIC_DATA_CHECKBOX = "checkBox";
-
-    private boolean mCheckBoxValue;
     private View mView;
 
     public static TabFragment createInstance(String title, int color) {
@@ -62,15 +58,13 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
         // SET FRAGMENT TITLE
         TextView titleView = (TextView) view.findViewById(R.id.titleView);
         titleView.setText(title);
-        centerTitle(randomTop, 0);
+        centerTitle(randomTop);
 
-        // RESTORE CHECKBOX
-        CheckBox optionCheckBox = (CheckBox) mView.findViewById(R.id.optionCheckBox);
-        optionCheckBox.setChecked(mCheckBoxValue);
-
+        MainActivity activity = (MainActivity) getActivity();
+        activity.restoreView(this, view);
     }
 
-    private void centerTitle(float topValue, float leftValue) {
+    private void centerTitle(float topValue) {
 
         {
             View topView = getView().findViewById(R.id.topView);
@@ -87,14 +81,6 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
             bottomView.setLayoutParams(params);
         }
 
-    }
-
-    private static int generateRandomColor() {
-        int alpha = 200;
-        int red = (int) (Math.random() * 128) + 127;
-        int green = (int) (Math.random() * 128) + 127;
-        int blue = (int) (Math.random() * 128) + 127;
-        return ((alpha << 24) + (red << 16) + (green << 8) + blue);
     }
 
     @Override
@@ -114,18 +100,15 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
     }
 
     @Override
-    public void onSaveTabFragmentInstance(Bundle outState) {
-        if (mView == null) {    // the Fragment has not been presented since the last save, so put the last saved values
-            outState.putBoolean(DYNAMIC_DATA_CHECKBOX, mCheckBoxValue);
-        } else {
-            CheckBox optionCheckBox = (CheckBox) mView.findViewById(R.id.optionCheckBox);
-            outState.putBoolean(DYNAMIC_DATA_CHECKBOX, optionCheckBox.isChecked());
-        }
+    public View onSaveTabFragmentInstance(Bundle outState) {
+        // You can add here some precious data to be saved in the bundle
+        // getView() is always null, so needs to keep a reference so that the view values can be restored correctly later
+        return mView;
     }
 
     @Override
     public void onRestoreTabFragmentInstance(Bundle savedInstanceState) {
-        mCheckBoxValue = savedInstanceState.getBoolean(DYNAMIC_DATA_CHECKBOX);
+        // You could retrieve here some precious data that has been saved with onSaveTabFragmentInstance
     }
 
 }
