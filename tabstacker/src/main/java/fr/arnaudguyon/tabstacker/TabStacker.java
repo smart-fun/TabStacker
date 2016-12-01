@@ -1,3 +1,18 @@
+/*
+    Copyright 2016 Arnaud Guyon
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ */
 package fr.arnaudguyon.tabstacker;
 
 import android.os.Bundle;
@@ -13,20 +28,12 @@ import java.util.HashMap;
 import java.util.Set;
 
 /**
- * Manager which handles several Fragment back stacks.
+ * Manager which handles several Back Stacks for Fragments.
  * Each stack is linked to a "tab" name so that it is easy to switch from one stack to another one using tab names.
  */
-
-// TODO: doc with ADD: clickable = true or will click the background fragment
-// TODO: doc explain IllegalStateException
-// TODO: Publish app test in Beta channel and provide a link so that users can try it.
-    // see https://code.google.com/p/android/issues/detail?id=207269
-    // see https://code.google.com/p/android/issues/detail?id=25517
-
 public class TabStacker {
 
     private static final String BUNDLE_TAB_STACKER = "TabStacker";
-
 
     enum Type {
         Replace,
@@ -389,7 +396,10 @@ public class TabStacker {
     private static final String BUNDLE_FRAGMENT_PREFIX = "FragmentInfo_";
     private static final String BUNDLE_STACKSIZE_POSTFIX = "_stackSize";
 
-
+    /**
+     * Saves the TabStacker into a Bundle so that it can be retrieved later
+     * @param outState Bundle where to save the TabStacker
+     */
     public void saveInstance(Bundle outState) {
         Bundle bundle = new Bundle();
         bundle.putString(BUNDLE_CURRENT_TAB, mCurrentTab);  // Current Tab
@@ -413,7 +423,7 @@ public class TabStacker {
             bundle.putBundle(tabName, stackBundle);
         }
 
-        // Force remove all fragments from screen
+        // Force to remove all fragments from screen
         int stackSize = getCurrentTabSize();
         for(int i=0; i<stackSize; ++i) {
             FragmentTransaction transaction = mFragmentManager.beginTransaction();
@@ -424,6 +434,11 @@ public class TabStacker {
         outState.putBundle(BUNDLE_TAB_STACKER, bundle);
     }
 
+    /**
+     * Restore the TabStacker and push all the fragment for the current tab
+     * Note that the view is not restored yet (it is not created yet at this moment)
+     * @param savedInstanceState Bundle with the saved TabStacker to restore
+     */
     public void restoreInstance(Bundle savedInstanceState) {
         if (savedInstanceState.containsKey(BUNDLE_TAB_STACKER)) {
             Bundle bundle = savedInstanceState.getBundle(BUNDLE_TAB_STACKER);
@@ -457,6 +472,11 @@ public class TabStacker {
         pushAll(mCurrentTab);
     }
 
+    /**
+     * Restores the View hierarchy
+     * @param fragment Fragment which holds the View
+     * @param fragmentView View to restore
+     */
     public void restoreView(Fragment fragment, View fragmentView) {
         ArrayList<FragmentInfo> fragmentInfos = mStacks.get(mCurrentTab);
         for(FragmentInfo fragmentInfo : fragmentInfos) {

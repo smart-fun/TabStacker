@@ -1,3 +1,18 @@
+/*
+    Copyright 2016 Arnaud Guyon
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+ */
 package fr.arnaudguyon.tabstackerapp;
 
 import android.os.Bundle;
@@ -13,7 +28,10 @@ import android.widget.TextView;
 import fr.arnaudguyon.tabstacker.TabStacker;
 
 /**
- * Created by aguyon on 28.11.16.
+ * Example of Fragment using TabStacker.
+ * It is constructed using the createInstance() pattern with arguments
+ * The View hierarchy is saved and restored.
+ * The title is displayed at a random place
  */
 
 public class TabFragment extends Fragment implements TabStacker.TabStackInterface {
@@ -24,8 +42,10 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
     private static final String ARGUMENT_COLOR = "color";
     private static final String ARGUMENT_RANDOM_TOP = "randomTop";
 
+    // a reference to the view must be kept so that the view can be saved
     private View mView;
 
+    // constructor
     public static TabFragment createInstance(String title, int color) {
         TabFragment fragment = new TabFragment();
         Bundle bundle = new Bundle();
@@ -60,6 +80,7 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
         titleView.setText(title);
         centerTitle(randomTop);
 
+        // Asks the MainActivity to restore the View hierarchy (the activity holds the TabStacker)
         MainActivity activity = (MainActivity) getActivity();
         activity.restoreView(this, view);
     }
@@ -83,6 +104,7 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
 
     }
 
+    // Called when a Fragment is presented on Screen
     @Override
     public void onTabFragmentPresented(TabStacker.PresentReason reason) {
         // Logs the Reason and Fragment name
@@ -91,6 +113,7 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
         Log.i(TAG, "PRESENT " + title + " (" + reason.name() + ")");
     }
 
+    // Called when a Fragment is dismissed from Screen
     @Override
     public void onTabFragmentDismissed(TabStacker.DismissReason reason) {
         // Logs the Reason and Fragment name
@@ -99,6 +122,7 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
         Log.i(TAG, "DISMISS " + title + " (" + reason.name() + ")");
     }
 
+    // called when it's time to save some precious data
     @Override
     public View onSaveTabFragmentInstance(Bundle outState) {
         // You can add here some precious data to be saved in the bundle
@@ -106,6 +130,7 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
         return mView;
     }
 
+    // called to restore your precious data
     @Override
     public void onRestoreTabFragmentInstance(Bundle savedInstanceState) {
         // You could retrieve here some precious data that has been saved with onSaveTabFragmentInstance
