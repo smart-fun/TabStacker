@@ -1,6 +1,5 @@
 package fr.arnaudguyon.tabstacker;
 
-import android.app.Activity;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -20,7 +19,6 @@ import java.util.Set;
 
 // TODO: doc with ADD: clickable = true or will click the background fragment
 // TODO: doc explain IllegalStateException
-// TODO: explain compat fragment, and simple migrate (import + getFragmentManager / Child)
 // TODO: Publish app test in Beta channel and provide a link so that users can try it.
     // see https://code.google.com/p/android/issues/detail?id=207269
     // see https://code.google.com/p/android/issues/detail?id=25517
@@ -74,6 +72,7 @@ public class TabStacker {
      * @param animationSet Optional animations
      */
     public void replaceFragment(Fragment fragment, AnimationSet animationSet) {
+        checkFragmentInterface(fragment);
         FragmentInfo topInfo = getTopFragmentInfo(mCurrentTab);
         if (topInfo != null) {
             onFragmentDismissed(topInfo.mFragment, DismissReason.REPLACED);
@@ -88,6 +87,7 @@ public class TabStacker {
      * @param animationSet Optional animations
      */
     public void addFragment(Fragment fragment, AnimationSet animationSet) {
+        checkFragmentInterface(fragment);
         FragmentInfo topInfo = getTopFragmentInfo(mCurrentTab);
         if (topInfo != null) {
             onFragmentDismissed(topInfo.mFragment, DismissReason.OVERLAPPED);
@@ -141,7 +141,7 @@ public class TabStacker {
     }
 
     private void pushFragment(Fragment fragment, AnimationSet animationSet, Type type) {
-
+        checkFragmentInterface(fragment);
         if (isEmpty(mCurrentTab)) {
             type = Type.Replace;
             animationSet = null;
@@ -377,8 +377,11 @@ public class TabStacker {
         void onRestoreTabFragmentInstance(Bundle savedInstanceState);
     }
 
-    public interface TabStackerOwner {
-        TabStacker getTabStacker();
+    private void checkFragmentInterface(Fragment fragment) {
+        if (!(fragment instanceof TabStackInterface)) {
+            String className = fragment.getClass().getName();
+            throw new RuntimeException(className + " must implement TabStackInterface");
+        }
     }
 
     private static final String BUNDLE_CURRENT_TAB = "CurrentTab";

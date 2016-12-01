@@ -2,7 +2,7 @@
 
 **Tab Stacker** is an Android Studio library that allows to handle a **Fragment history for each Tab**, like it is done on iOS apps natively.
 
-![alt text](app\src\main\res\mipmap-xxxhdpi\ic_launcher.png?raw=true "Tab Stacker")
+![alt text](app/src/main/res/mipmap-xxxhdpi/ic_launcher.png?raw=true "Tab Stacker")
 
 Each Tab has its own stack of Fragments, that can be added, replaced or removed using **animations**. When the user presses back, the top Fragment from the current Tab stack is dismissed.
 
@@ -70,6 +70,11 @@ public class MainActivity extends FragmentActivity {
         super.onSaveInstanceState(outState);
     }
     
+    // will be called by the Fragments when they build their view, so that the View hierarchy will be retored.
+    public void restoreView(Fragment fragment, View view) {
+        mTabStacker.restoreView(fragment, view);
+    }
+    
 }
 ```
 
@@ -118,15 +123,13 @@ I recommend to use the Fragment.createInstance pattern instead of new Fragment, 
 
 ### Fragment Code ###
 
-Your Fragment must inherit from Support Fragments.
+Your Fragment must inherit from **Support Fragments** and implement the **TabStackInterface**.
 
 ```java
 import android.support.v4.app.Fragment;
 ```
 
 If your Fragment uses arguments, they will be automatically saved and restored.
-
-If you have dynamic values that you want to save and restore, then you have to implement TabStacker.TabStackInterface. This interface has also callbacks that are called when a Fragment is presented or dismissed.
 
 ```java
 
@@ -152,19 +155,21 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
 
 ```
 
-Let's put a simple example with arguments and dynamic content. Imagine you have a Fragment with a title that is given by argument, and a checkbox that you want to save the state.
+Let's put a concrete example with a Fragment that has:
+* a title that is defined by arguments
+* a String that is changed dynamically but you want to save & restore when necessary
+* a View hierarchy that you want to save and restore when necessary
 
-Note that for saving elements from the view you'll have to keep a reference to the view.
+Note that for saving the View hierarchy you'll have to keep a reference to that view, because getView() is always null when a cleanup occurs.
 
 ```java
 
 public class MyFragment extends Fragment implements TabStacker.TabStackInterface {
 
     private static final String ARGUMENT_TITLE = "title";
-    private static final String DYNAMIC_DATA_CHECKBOX = "checkBox";
+    private static final String DYNAMIC_IMPORTANT = "important";
     
     private View mView;		// keep a reference to the inflated view
-    private boolean mCheckBoxValue;
 
     // createInstance() pattern with arguments
     public static MyFragment createInstance(String title) {
@@ -191,24 +196,21 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
         TextView titleView = (TextView) view.findViewById(R.id.titleView);
         titleView.setText(title);
         
-        // restore the checkbox value
-        CheckBox optionCheckBox = (CheckBox) mView.findViewById(R.id.optionCheckBox);
-        optionCheckBox.setChecked(mCheckBoxValue);
+        // Restore the View hierarchy (the Activity holds the TabStacker)
+        MainActivity activity = (MainActivity) getActivity();
+        activity.restoreView(this, view);
+        
     }
     
         @Override
     public void onSaveTabFragmentInstance(Bundle outState) {
-        if (mView == null) {    // the Fragment has not been presented since the last save, so put the last saved values
-            outState.putBoolean(DYNAMIC_DATA_CHECKBOX, mCheckBoxValue);
-        } else {
-            CheckBox optionCheckBox = (CheckBox) mView.findViewById(R.id.optionCheckBox);
-            outState.putBoolean(DYNAMIC_DATA_CHECKBOX, optionCheckBox.isChecked());
-        }
+        outState.putString(DYNAMIC_IMPORTANT, "my important string to save");
+        return mView;	// so that the View hierarchy can be saved
     }
 
     @Override
     public void onRestoreTabFragmentInstance(Bundle savedInstanceState) {
-        mCheckBoxValue = savedInstanceState.getBoolean(DYNAMIC_DATA_CHECKBOX);
+        String importantString = savedInstanceState.getString(DYNAMIC_IMPORTANT);
     }
 
 }
@@ -217,11 +219,13 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
 
 Okay that's it for a full implementation of Fragments with TabStacker.
 
-At the moment the state of every component of the view is not saved / restored (this is why I gave the example of the CheckBox). This is planned to implement this in a future version of the library.
+You can experiment and download the [Tab Stacker Sample App on Google Play](https://play.google.com/apps/testing/fr.arnaudguyon.tabstackerapp)
+
+![alt text](extras/screenshot.png?raw=true "Tab Stacker App")
 
 ## Migrate to Support Fragments ##
 
-The first thing to do is to add the dependency in your app build.gradle file. If you already include appcompat-v4 library you don't need this.
+If your project does not use the Support Fragments, the first thing to do is to add the dependency in your app build.gradle file. If you already include appcompat-v4 library you don't need this.
 
 ```xml
 dependencies {

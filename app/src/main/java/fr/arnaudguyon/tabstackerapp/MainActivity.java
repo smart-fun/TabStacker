@@ -44,7 +44,6 @@ public class MainActivity extends FragmentActivity {
         if (savedInstanceState == null) {
             onClickOnTab(Tab.TAB_A);
         } else {
-            mTabStacker = new TabStacker(getSupportFragmentManager(), R.id.fragmentHolder);
             mTabStacker.restoreInstance(savedInstanceState);
             Tab selectedTab = Tab.valueOf(mTabStacker.getCurrentTabName());
             onClickOnTab(selectedTab);
