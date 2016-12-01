@@ -257,9 +257,49 @@ Add the libary dependency to your **APP** build.gradle file
 
 ```
 dependencies {
-    compile 'com.github.smart-fun:TabStacker:0.8.1'    // add this line
+    compile 'com.github.smart-fun:TabStacker:1.0.0'    // add this line
 }
 ```
+
+## Troubeshooting ##
+
+### I can click on the Fragment behind the top Fragment ###
+You have called addFragment() so the previous Fragment is still behind and is clickable. If you don't want the previous Fragment to stay behind, call replaceFragment() instead. If you just don't want it to be clickable, set clickable="true" in the top fragment layout, so that all clicks that are not intercepted by buttons will be stopped.
+
+### I got an IllegalStateException (aka State Loss Exception) ###
+When you do asynchronous calls and then you want to change the Fragment (for example after a webservice call), the Fragment may have been removed or the Activity finished. In these case you should not try to change the Fragments. Add these tests before trying to change the Fragments:
+
+```java
+// code in Activity
+if (isActive()) {
+    mTabStacker.replaceFragment(...)
+}
+
+// or code in Fragment
+Activity activity = getActivity();
+if ((activity != null) && !isDetached()) {
+    activity.doSomethingWithTheFragment();
+}
+
+```
+
+Note that there are known bugs in Android where this exception is thrown and should not.
+
+[Issue 207269](https://code.google.com/p/android/issues/detail?id=207269)
+
+[Issue 25517](https://code.google.com/p/android/issues/detail?id=25517)
+
+A workaround to fix that is to catch the exception, but the Fragment won't be pushed:
+
+```java
+    try {
+        mTabStacker.replaceFragment(...);
+    } catch (IllegalStateException exception) {
+        // too bad but it did not crash at least
+    }
+```
+
+
 
 ## Library License
 
