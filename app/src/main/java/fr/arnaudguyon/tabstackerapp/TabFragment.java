@@ -17,12 +17,12 @@ import fr.arnaudguyon.tabstacker.TabStacker;
  * Created by aguyon on 28.11.16.
  */
 
-public class TestFragment extends Fragment implements TabStacker.TabStackInterface {
+public class TabFragment extends Fragment implements TabStacker.TabStackInterface {
 
-    private static final String TAG = "TestFragment";
+    private static final String TAG = "TabFragment";
 
     private static final String ARGUMENT_TITLE = "title";
-    private static final String ARGUMENT_COLOR = "randomColor";
+    private static final String ARGUMENT_COLOR = "color";
     private static final String ARGUMENT_RANDOM_TOP = "randomTop";
 
     private static final String DYNAMIC_DATA_CHECKBOX = "checkBox";
@@ -30,11 +30,11 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
     private boolean mCheckBoxValue;
     private View mView;
 
-    public static TestFragment createInstance(String title) {
-        TestFragment fragment = new TestFragment();
+    public static TabFragment createInstance(String title, int color) {
+        TabFragment fragment = new TabFragment();
         Bundle bundle = new Bundle();
         bundle.putString(ARGUMENT_TITLE, title);
-        bundle.putInt(ARGUMENT_COLOR, generateRandomColor());
+        bundle.putInt(ARGUMENT_COLOR, color);
         bundle.putFloat(ARGUMENT_RANDOM_TOP, (float) (Math.random() * 0.6 + 0.2));
         fragment.setArguments(bundle);
         return fragment;
@@ -127,6 +127,5 @@ public class TestFragment extends Fragment implements TabStacker.TabStackInterfa
     public void onRestoreTabFragmentInstance(Bundle savedInstanceState) {
         mCheckBoxValue = savedInstanceState.getBoolean(DYNAMIC_DATA_CHECKBOX);
     }
-
 
 }

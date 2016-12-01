@@ -3,4 +3,8 @@
     <!-- Base application theme. -->
     <style name="AppTheme" parent="android:Theme.Holo.Light" />
 
+    <style name="TabButton" parent="@android:style/Widget.Holo.Button">
+        <item name="android:textColor">@drawable/button_text</item>
+    </style>
+
 </resources>

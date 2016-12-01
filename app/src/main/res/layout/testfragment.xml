@@ -23,6 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal"
         android:text="hello fragment"
+        android:textColor="@color/white"
         android:textSize="20sp" />
 
     <View

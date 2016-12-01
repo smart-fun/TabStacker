@@ -1,6 +1,7 @@
 package fr.arnaudguyon.tabstackerapp;
 
 import android.os.Bundle;
+import android.support.annotation.ColorRes;
 import android.support.annotation.IdRes;
 import android.support.v4.app.FragmentActivity;
 import android.util.Log;
@@ -19,14 +20,16 @@ public class MainActivity extends FragmentActivity {
     private AnimationSet mReplaceAnimation = new Anims.SlideFromRight();
 
     private enum Tab {
-        TAB_A(R.id.tabA),
-        TAB_B(R.id.tabB),
-        TAB_C(R.id.tabC);
+        TAB_A(R.id.tabA, R.color.tabA),
+        TAB_B(R.id.tabB, R.color.tabB),
+        TAB_C(R.id.tabC, R.color.tabC);
 
         private int mButtonResId;
+        private int mColor;
 
-        Tab(@IdRes int buttonResId) {
+        Tab(@IdRes int buttonResId, @ColorRes int color) {
             mButtonResId = buttonResId;
+            mColor = color;
         }
     }
 
@@ -70,7 +73,7 @@ public class MainActivity extends FragmentActivity {
         replaceButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TestFragment fragment = createFragment();
+                TabFragment fragment = createFragment();
                 mTabStacker.replaceFragment(fragment, mReplaceAnimation);
             }
         });
@@ -80,7 +83,7 @@ public class MainActivity extends FragmentActivity {
         addButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                TestFragment fragment = createFragment();
+                TabFragment fragment = createFragment();
                 mTabStacker.addFragment(fragment, mAddAnimation);
             }
         });
@@ -91,33 +94,30 @@ public class MainActivity extends FragmentActivity {
 
         Log.i(TAG, "switch to tab " + clickedTab.name());
 
-        // Update Button background (green=selected, red=not selected)
-        int colorON = getResources().getColor(R.color.tabON);
-        int colorOFF = getResources().getColor(R.color.tabOFF);
+        // Update Button state
         for(final Tab tab : Tab.values()) {
-            final Button button = (Button) findViewById(tab.mButtonResId);
-            if (tab == clickedTab) {
-                button.setBackgroundColor(colorON);
-            } else {
-                button.setBackgroundColor(colorOFF);
-            }
+            View button = findViewById(tab.mButtonResId);
+            button.setSelected((tab == clickedTab));
         }
 
         // switch to Tab Stack
         String tabName = clickedTab.name();
         if (!mTabStacker.switchToTab(tabName)) {    // Try to switch to the TAB STACK
             // Fails = no fragment yet on this stack -> push the 1st fragment of the stack
-            TestFragment fragment = createFragment();
+            TabFragment fragment = createFragment();
             mTabStacker.replaceFragment(fragment, null);
         }
 
     }
 
-    private TestFragment createFragment() {
+    private TabFragment createFragment() {
         String tabName = mTabStacker.getCurrentTabName();
         int number = mTabStacker.getCurrentTabSize() + 1;
         String title = "Fragment " + tabName + " " + number;
-        TestFragment fragment = TestFragment.createInstance(title);
+        int color = getResources().getColor(Tab.valueOf(tabName).mColor);
+        color &= 0x00FFFFFF;
+        color |= 0x7F000000;
+        TabFragment fragment = TabFragment.createInstance(title, color);
         return fragment;
     }
 

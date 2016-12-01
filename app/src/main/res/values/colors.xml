@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="tabON">#DDFFDD</color>
-    <color name="tabOFF">#FFDDDD</color>
+    <color name="tabA">#008aff</color>
+    <color name="tabB">#ff823e</color>
+    <color name="tabC">#00d771</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
 </resources>
