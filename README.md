@@ -144,7 +144,7 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
     }
 
     @Override
-    public void onSaveTabFragmentInstance(Bundle outState) {
+    public View onSaveTabFragmentInstance(Bundle outState) {
     }
 
     @Override
@@ -203,7 +203,7 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
     }
     
         @Override
-    public void onSaveTabFragmentInstance(Bundle outState) {
+    public View onSaveTabFragmentInstance(Bundle outState) {
         outState.putString(DYNAMIC_IMPORTANT, "my important string to save");
         return mView;	// so that the View hierarchy can be saved
     }
@@ -289,7 +289,7 @@ Note that there are known bugs in Android where this exception is thrown and sho
 
 [Issue 25517](https://code.google.com/p/android/issues/detail?id=25517)
 
-A workaround to fix that is to catch the exception, but the Fragment won't be pushed:
+A workaround to fix that is to catch the exception, but the Fragment won't be pushed anyway.
 
 ```java
     try {
