@@ -1,6 +1,6 @@
 # Tab Stacker #
 
-**Tab Stacker** is an Android Studio library that allows to handle a **Fragment history for each Tab**, like it is done on iOS apps natively.
+**Tab Stacker** is an Android library that handles **Multiple Fragment History**, like it is done on iOS Apps.
 
 ![alt text](app/src/main/res/mipmap-xxxhdpi/ic_launcher.png?raw=true "Tab Stacker")
 
@@ -65,7 +65,9 @@ public class MainActivity extends FragmentActivity {
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         // Keep this first
-        mTabStacker.saveInstance(outState);
+        if (mTabStacker != null) {
+            mTabStacker.saveInstance(outState);
+        }
 
         super.onSaveInstanceState(outState);
     }
