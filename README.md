@@ -133,6 +133,8 @@ import android.support.v4.app.Fragment;
 
 If your Fragment uses arguments, they will be automatically saved and restored.
 
+The callbacks **onSaveTabFragmentInstance** and **onRestoreTabFragmentInstance** are replacing the Fragment.onSaveInstance() mechanism.
+
 ```java
 
 public class MyFragment extends Fragment implements TabStacker.TabStackInterface {
@@ -158,6 +160,7 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
 ```
 
 Let's put a concrete example with a Fragment that has:
+
 * a title that is defined by arguments
 * a String that is changed dynamically but you want to save & restore when necessary
 * a View hierarchy that you want to save and restore when necessary
