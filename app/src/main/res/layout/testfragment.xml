@@ -1,21 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clickable="true"
-    android:orientation="vertical">
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:clickable="true"
+              android:orientation="vertical">
 
     <CheckBox
         android:id="@+id/optionCheckBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Option here" />
+        android:text="Option here"/>
+
+    <Button
+        android:id="@+id/activityButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Start Activity"/>
 
     <View
         android:id="@+id/topView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.5" />
+        android:layout_weight="0.5"/>
 
     <TextView
         android:id="@+id/titleView"
@@ -24,12 +30,12 @@
         android:layout_gravity="center_horizontal"
         android:text="hello fragment"
         android:textColor="@color/white"
-        android:textSize="20sp" />
+        android:textSize="20sp"/>
 
     <View
         android:id="@+id/bottomView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="0.5" />
+        android:layout_weight="0.5"/>
 
 </LinearLayout>

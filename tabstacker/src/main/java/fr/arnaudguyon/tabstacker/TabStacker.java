@@ -423,13 +423,19 @@ public class TabStacker {
             bundle.putBundle(tabName, stackBundle);
         }
 
+        // FIX
+        // Do not remove the fragments from the stack as the system
+        // saves the state in case it needs to rebuild it later, but
+        // sometime it just don't need to rebuild them so they need to be still there.
+        // Happens when starting a new Activity.
+
         // Force to remove all fragments from screen
-        int stackSize = getCurrentTabSize();
-        for(int i=0; i<stackSize; ++i) {
-            FragmentTransaction transaction = mFragmentManager.beginTransaction();
-            transaction.remove(getCurrentTopFragment());
-            transaction.commitAllowingStateLoss();
-        }
+//        int stackSize = getCurrentTabSize();
+//        for(int i=0; i<stackSize; ++i) {
+//            FragmentTransaction transaction = mFragmentManager.beginTransaction();
+//            transaction.remove(getCurrentTopFragment());
+//            transaction.commitAllowingStateLoss();
+//        }
 
         outState.putBundle(BUNDLE_TAB_STACKER, bundle);
     }

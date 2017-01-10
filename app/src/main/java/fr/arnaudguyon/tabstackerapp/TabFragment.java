@@ -15,6 +15,8 @@
  */
 package fr.arnaudguyon.tabstackerapp;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -83,6 +85,18 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
         // Asks the MainActivity to restore the View hierarchy (the activity holds the TabStacker)
         MainActivity activity = (MainActivity) getActivity();
         activity.restoreView(this, view);
+
+        // Start Activity button
+        View activityButton = view.findViewById(R.id.activityButton);
+        activityButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String url = "https://play.google.com/store/apps/details?id=fr.smartfun.pingoo";
+                Intent intent = new Intent(Intent.ACTION_VIEW);
+                intent.setData(Uri.parse(url));
+                startActivity(intent);
+            }
+        });
     }
 
     private void centerTitle(float topValue) {
