@@ -174,14 +174,25 @@ public class TabStacker {
      * @return false if this is the last fragment of the current tab stack, true if there are several fragments.
      */
     public boolean onBackPressed() {
+        return pop(DismissReason.BACK, PresentReason.BACK, false);
+    }
+
+    /**
+     * pop 1 fragment from the current stack & from the screen. The 1st fragment cannot be popped.
+     * @param dismissReason Reason why the fragment is dismissed
+     * @param presentReason Reason why the fragment behind is presented
+     * @param instant removes instantly when true, else use animations if defined
+     * @return true if the fragment has been successfully popped
+     */
+    private boolean pop(DismissReason dismissReason, PresentReason presentReason, boolean instant) {
         if (getTabSize(mCurrentTab) <= 1) { // Don't pop last remaining fragment
             return false;
         }
         ArrayList<FragmentInfo> infos = mStacks.get(mCurrentTab);
         FragmentInfo topFragmentInfo = infos.get(infos.size() - 1);
         if (topFragmentInfo.mType == Type.Add) {
-            removeFragment(topFragmentInfo, false);
-            onFragmentDismissed(topFragmentInfo.mFragment, DismissReason.BACK);
+            removeFragment(topFragmentInfo, instant);
+            onFragmentDismissed(topFragmentInfo.mFragment, dismissReason);
         } else {
 
             int currentIndex = infos.size() - 1;
@@ -195,7 +206,7 @@ public class TabStacker {
             }
 
             FragmentInfo previousReplace = infos.get(lastPreviousReplaceIndex);
-            AnimationSet topAnimationSet = topFragmentInfo.mAnimationSet;
+            AnimationSet topAnimationSet = instant ? null : topFragmentInfo.mAnimationSet;
             int inAnim = (topAnimationSet != null) ? topAnimationSet.getPopInAnim() : 0;
             int outAnim = (topAnimationSet != null) ? topAnimationSet.getPopOutAnim() : 0;
 
@@ -206,7 +217,7 @@ public class TabStacker {
                 }
                 transaction.replace(mFragmentHolder, previousReplace.mFragment);
                 transaction.commit();
-                onFragmentDismissed(topFragmentInfo.mFragment, DismissReason.BACK);
+                onFragmentDismissed(topFragmentInfo.mFragment, dismissReason);
             }
 
             {
@@ -223,7 +234,7 @@ public class TabStacker {
         infos.remove(topFragmentInfo);
         topFragmentInfo = getTopFragmentInfo(mCurrentTab);
         if (topFragmentInfo != null) {
-            onFragmentPresented(topFragmentInfo.mFragment, PresentReason.BACK);
+            onFragmentPresented(topFragmentInfo.mFragment, presentReason);
         }
         return true;
     }
@@ -238,6 +249,41 @@ public class TabStacker {
         if (infos != null) {
             infos.clear();
         }
+    }
+
+    /**
+     * pop all the fragments from the current stack except the 1st fragment, and remove them from the screen
+     * @param instant removes the fragments instantly if true, else use animations if some are defined
+     * @return true if the fragment has been popped
+     */
+    public int popToTop(boolean instant) {
+        int tabSize = getCurrentTabSize();
+        if (tabSize > 1) {
+            return pop(tabSize - 1, instant);
+        }
+        return 0;
+    }
+
+    /**
+     * pop several fragments from the current stack & from the screen. The 1st fragment cannot be popped.
+     * @param count the number of fragments to pop
+     * @param instant removes the fragment instantly if true, else use animations if some are defined
+     * @return the number of popped fragments
+     */
+    public int pop(int count, boolean instant) {
+        int nbPopped = 0;
+        ArrayList<FragmentInfo> infos = mStacks.get(mCurrentTab);
+        if ((infos == null) || infos.isEmpty()) {
+            return nbPopped;
+        }
+        while((nbPopped < count) && (infos.size() > 0)) {
+            if (pop(DismissReason.POP, PresentReason.POP, instant)) {
+                ++nbPopped;
+            } else {
+                return nbPopped;
+            }
+        }
+        return nbPopped;
     }
 
     private boolean isEmpty(String tabName) {
@@ -341,7 +387,8 @@ public class TabStacker {
     public enum PresentReason {
         NEW_FRAGMENT,       // This is a newly created fragment
         RESTORING_STACK,    // The Stack is restoring
-        BACK                // The user pressed Back
+        BACK,               // The user pressed Back
+        POP                 // The programmer popped some fragments
     }
 
     public enum DismissReason {
@@ -349,7 +396,8 @@ public class TabStacker {
         OVERLAPPED,         // is overlapped with another Fragment (Add)
         LEAVING_STACK,      // the stack is changing
         BACK,               // The user pressed Back
-        CLEARING_STACK      // Stack is being cleared
+        CLEARING_STACK,     // Stack is being cleared
+        POP                 // The programmer popped some fragments
     }
 
     private void onFragmentPresented(Fragment fragment, PresentReason reason) {
