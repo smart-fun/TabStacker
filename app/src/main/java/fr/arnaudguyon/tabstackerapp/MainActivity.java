@@ -123,14 +123,12 @@ public class MainActivity extends FragmentActivity {
         // switch to Tab Stack
         String tabName = clickedTab.name();
 
-        if (mTabStacker.getCurrentTabName().equals(tabName)) {  // Already the correct Stack, pop all but 1st fragment
-            mTabStacker.popToTop(false);
-        } else {
-            if (!mTabStacker.switchToTab(tabName)) {    // switch to the new Tab Stack
-                // the stack is empty -> push the 1st fragment to the stack
-                TabFragment fragment = createFragment();
-                mTabStacker.replaceFragment(fragment, null);
-            }
+        if (mTabStacker.getCurrentTabName().equals(tabName)) {  // The user clicked again on the current stack
+            mTabStacker.popToTop(true);  // Pop all but 1st fragment instantly
+        } else if (!mTabStacker.switchToTab(tabName)) {    // else tries to switch to the TAB STACK
+            // no fragment yet on this stack -> push the 1st fragment of the stack
+            TabFragment fragment = createFragment();
+            mTabStacker.replaceFragment(fragment, null);  // no animation
         }
 
     }
