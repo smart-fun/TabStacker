@@ -8,7 +8,7 @@ Each Tab has its own stack of Fragments, that can be added, replaced or removed 
 
 When a complete stack is removed and restored (during a Tab change, or a system cleanup like when rotating the device), a **save and restore** mechanism allows you to keep your Fragments up-to-date.
 
-Tab Stacker uses **Support Fragments**. It is recommended to always use Support Fragments as they are compatible with older devices, and the last bugs are fixed for all devices. See how to migrate to Support Fragment in the corresponding section below.
+Tab Stacker uses **Support Fragments**. It is recommended to always use Support Fragments as they are compatible with older devices, and the last bugs are fixed for all devices. See how to migrate to Support Fragment in the **[wiki](wiki)**.
 
 ## How to use##
 
@@ -224,26 +224,12 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
 
 Okay that's it for a full implementation of Fragments with TabStacker.
 
+**See other potential tips in the [wiki](wiki)**.
+
+
 You can experiment and download the [Tab Stacker Sample App on Google Play](https://play.google.com/apps/testing/fr.arnaudguyon.tabstackerapp)
 
 ![alt text](extras/screenshot.png?raw=true "Tab Stacker App")
-
-## Migrate to Support Fragments ##
-
-If your project does not use the Support Fragments, the first thing to do is to add the dependency in your app build.gradle file. If you already include appcompat-v4 library you don't need this.
-
-```xml
-dependencies {
-    compile 'com.android.support:support-fragment:25.0.1'
-}
-```
-
-Then your Activity must inherit from FragmentActivity
-
-```java
-import android.support.v4.app.FragmentActivity;
-```
-Replace any getFragmentManager() in your activities with get**Support**FragmentManager()
 
 ## Installation with gradle
 
@@ -262,7 +248,7 @@ Add the libary dependency to your **APP** build.gradle file
 
 ```
 dependencies {
-    compile 'com.github.smart-fun:TabStacker:1.0.1'    // add this line
+    compile 'com.github.smart-fun:TabStacker:1.0.2'    // add this line
 }
 ```
 
@@ -272,17 +258,17 @@ dependencies {
 You have called addFragment() so the previous Fragment is still behind and is clickable. If you don't want the previous Fragment to stay behind, call replaceFragment() instead. If you just don't want it to be clickable, set clickable="true" in the top fragment layout, so that all clicks that are not intercepted by buttons will be stopped.
 
 ### I got an IllegalStateException (aka State Loss Exception) ###
-When you do asynchronous calls and then you want to change the Fragment (for example after a webservice call), the Fragment may have been removed or the Activity finished. In these case you should not try to change the Fragments. Add these tests before trying to change the Fragments:
+When you do asynchronous calls and then you want to change the Fragment (for example after a webservice call), the Fragment may have been removed or the Activity finished. In these cases you should not try to change the Fragments. Add these tests before trying to change the Fragments:
 
 ```java
 // code in Activity
-if (isActive()) {
+if (isActive()) { // be sure that the Activity is still there
     mTabStacker.replaceFragment(...)
 }
 
 // or code in Fragment
 Activity activity = getActivity();
-if ((activity != null) && !isDetached()) {
+if ((activity != null) && !isDetached()) { // be sure the fragment is still there
     activity.doSomethingWithTheFragment();
 }
 
