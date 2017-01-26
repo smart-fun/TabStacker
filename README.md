@@ -8,7 +8,7 @@ Each Tab has its own stack of Fragments, that can be added, replaced or removed 
 
 When a complete stack is removed and restored (during a Tab change, or a system cleanup like when rotating the device), a **save and restore** mechanism allows you to keep your Fragments up-to-date.
 
-Tab Stacker uses **Support Fragments**. It is recommended to always use Support Fragments as they are compatible with older devices, and the last bugs are fixed for all devices. See how to migrate to Support Fragment in the **[wiki](wiki)**.
+Tab Stacker uses **Support Fragments**. It is recommended to always use Support Fragments as they are compatible with older devices, and the last bugs are fixed for all devices. See how to migrate to Support Fragment in the **[wiki](https://github.com/smart-fun/TabStacker/wiki)**.
 
 ## How to use##
 
@@ -224,7 +224,7 @@ public class MyFragment extends Fragment implements TabStacker.TabStackInterface
 
 Okay that's it for a full implementation of Fragments with TabStacker.
 
-**See other potential tips in the [wiki](wiki)**.
+**See other potential tips in the [wiki](https://github.com/smart-fun/TabStacker/wiki)**.
 
 
 You can experiment and download the [Tab Stacker Sample App on Google Play](https://play.google.com/apps/testing/fr.arnaudguyon.tabstackerapp)
