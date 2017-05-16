@@ -60,13 +60,13 @@ public class MainActivity extends FragmentActivity {
         mTabStacker = new TabStacker(getSupportFragmentManager(), R.id.fragmentHolder);
 
         if (savedInstanceState == null) {
-            // new Activity: select the first Tab
-            onClickOnTab(Tab.TAB_A);
+            // new Activity: creates the first Tab
+            selectTab(Tab.TAB_A);
         } else {
             // restoring Activity: restore the TabStacker, and select the saved selected tab
             mTabStacker.restoreInstance(savedInstanceState);
             Tab selectedTab = Tab.valueOf(mTabStacker.getCurrentTabName());
-            onClickOnTab(selectedTab);
+            selectTab(selectedTab);
         }
 
         for (final Tab tab : Tab.values()) {
@@ -111,26 +111,38 @@ public class MainActivity extends FragmentActivity {
     }
 
     private void onClickOnTab(Tab clickedTab) {
+        Log.i(TAG, "Clicked on Tab " + clickedTab.name());
 
-        Log.i(TAG, "switch to tab " + clickedTab.name());
-
-        // Update Button state (white / black)
-        for(final Tab tab : Tab.values()) {
-            View button = findViewById(tab.mButtonResId);
-            button.setSelected((tab == clickedTab));
+        String tabName = clickedTab.name();
+        if (mTabStacker.getCurrentTabName().equals(tabName)) {  // The user clicked again on the current stack
+            mTabStacker.popToTop(true);  // Pop all but 1st fragment instantly
+        } else {
+            selectTab(clickedTab);
         }
+    }
+
+    private void selectTab(Tab clickedTab) {
+
+        Log.i(TAG, "Select Tab " + clickedTab.name());
+
+        updateButtonStates(clickedTab);
 
         // switch to Tab Stack
         String tabName = clickedTab.name();
-
-        if (mTabStacker.getCurrentTabName().equals(tabName)) {  // The user clicked again on the current stack
-            mTabStacker.popToTop(true);  // Pop all but 1st fragment instantly
-        } else if (!mTabStacker.switchToTab(tabName)) {    // else tries to switch to the TAB STACK
+        if (!mTabStacker.switchToTab(tabName)) {    // tries to switch to the TAB STACK
             // no fragment yet on this stack -> push the 1st fragment of the stack
             TabFragment fragment = createFragment();
             mTabStacker.replaceFragment(fragment, null);  // no animation
         }
 
+    }
+
+    // Update Button state (white / black)
+    private void updateButtonStates(Tab clickedTab) {
+        for(final Tab tab : Tab.values()) {
+            View button = findViewById(tab.mButtonResId);
+            button.setSelected((tab == clickedTab));
+        }
     }
 
     private TabFragment createFragment() {
