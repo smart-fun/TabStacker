@@ -175,4 +175,9 @@ public class MainActivity extends FragmentActivity {
     void restoreView(Fragment fragment, View view) {
         mTabStacker.restoreView(fragment, view);
     }
+
+    public void onTitlePressed() {
+        FragmentDetail fragmentDetail = FragmentDetail.createInstance();
+        mTabStacker.replaceFragment(fragmentDetail, null);
+    }
 }

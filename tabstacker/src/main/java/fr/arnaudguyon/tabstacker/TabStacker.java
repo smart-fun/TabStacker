@@ -15,6 +15,7 @@
  */
 package fr.arnaudguyon.tabstacker;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.IdRes;
 import android.support.annotation.NonNull;
@@ -47,8 +48,9 @@ public class TabStacker {
 
     /**
      * Constructor for a TabStacker instance
+     *
      * @param fragmentManager the FragmentManager from support library
-     * @param fragmentHolder the place holder for all the Fragments
+     * @param fragmentHolder  the place holder for all the Fragments
      */
     public TabStacker(FragmentManager fragmentManager, @IdRes int fragmentHolder) {
         mFragmentManager = fragmentManager;
@@ -57,6 +59,7 @@ public class TabStacker {
 
     /**
      * Switch from the current tab to another tab.
+     *
      * @param tabName Name of the New tab
      * @return true if the new tab is already the current tab, or if the new tab has been restored (not empty).
      * false if the new tab is empty (so that a new Fragment must be put). In all cases the current tab becomes the new tab.
@@ -75,7 +78,8 @@ public class TabStacker {
 
     /**
      * Replace a fragment by another one, in the current tab stack
-     * @param fragment The new fragment to display
+     *
+     * @param fragment     The new fragment to display
      * @param animationSet Optional animations
      */
     public void replaceFragment(Fragment fragment, AnimationSet animationSet) {
@@ -90,7 +94,8 @@ public class TabStacker {
 
     /**
      * Add a new fragment to the current tab stack
-     * @param fragment The new fragment to display
+     *
+     * @param fragment     The new fragment to display
      * @param animationSet Optional animations
      */
     public void addFragment(Fragment fragment, AnimationSet animationSet) {
@@ -138,7 +143,6 @@ public class TabStacker {
     }
 
     /**
-     *
      * @param tabName Name of the tab stack
      * @return the number of fragments in the tabName tab stack
      */
@@ -171,6 +175,7 @@ public class TabStacker {
     /**
      * To be called from the Activity. Pop top fragment from the current tab stack.
      * The 1st fragment of the current tab stack is never popped.
+     *
      * @return false if this is the last fragment of the current tab stack, true if there are several fragments.
      */
     public boolean onBackPressed() {
@@ -179,9 +184,10 @@ public class TabStacker {
 
     /**
      * pop 1 fragment from the current stack & from the screen. The 1st fragment cannot be popped.
+     *
      * @param dismissReason Reason why the fragment is dismissed
      * @param presentReason Reason why the fragment behind is presented
-     * @param instant removes instantly when true, else use animations if defined
+     * @param instant       removes instantly when true, else use animations if defined
      * @return true if the fragment has been successfully popped
      */
     private boolean pop(DismissReason dismissReason, PresentReason presentReason, boolean instant) {
@@ -215,6 +221,7 @@ public class TabStacker {
                 if ((inAnim != 0) && (outAnim != 0)) {
                     transaction.setCustomAnimations(inAnim, outAnim);
                 }
+                handleSharedTransitions(transaction);
                 transaction.replace(mFragmentHolder, previousReplace.mFragment);
                 transaction.commit();
                 onFragmentDismissed(topFragmentInfo.mFragment, dismissReason);
@@ -253,6 +260,7 @@ public class TabStacker {
 
     /**
      * pop all the fragments from the current stack except the 1st fragment, and remove them from the screen
+     *
      * @param instant removes the fragments instantly if true, else use animations if some are defined
      * @return true if the fragment has been popped
      */
@@ -266,7 +274,8 @@ public class TabStacker {
 
     /**
      * pop several fragments from the current stack & from the screen. The 1st fragment cannot be popped.
-     * @param count the number of fragments to pop
+     *
+     * @param count   the number of fragments to pop
      * @param instant removes the fragment instantly if true, else use animations if some are defined
      * @return the number of popped fragments
      */
@@ -276,7 +285,7 @@ public class TabStacker {
         if ((infos == null) || infos.isEmpty()) {
             return nbPopped;
         }
-        while((nbPopped < count) && (infos.size() > 0)) {
+        while ((nbPopped < count) && (infos.size() > 0)) {
             if (pop(DismissReason.POP, PresentReason.POP, instant)) {
                 ++nbPopped;
             } else {
@@ -350,8 +359,30 @@ public class TabStacker {
             fragmentInfo.mAnimationSet.addToTransaction(fragmentTransaction);
 //            fragmentTransaction.setCustomAnimations(fragmentInfo.mAnimationSet.getPushInAnim(), fragmentInfo.mAnimationSet.getPushOutAnim());
         }
+
+        handleSharedTransitions(fragmentTransaction);   // Shared Elements Animations
+
         fragmentTransaction.replace(mFragmentHolder, fragmentInfo.mFragment);
         fragmentTransaction.commit();
+    }
+
+    private void handleSharedTransitions(FragmentTransaction fragmentTransaction) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            Fragment fragment = getTopFragment(mCurrentTab);
+            if (fragment instanceof SharedTransitionInfo.TransitionInterface) {
+                SharedTransitionInfo.TransitionInterface sharedElementInterface = (SharedTransitionInfo.TransitionInterface) fragment;
+                ArrayList<SharedTransitionInfo> infos = sharedElementInterface.getTransitionInfos();
+                if (infos != null) {
+                    for(SharedTransitionInfo info : infos) {
+                        View sharedView = info.getSrcView();
+                        String sharedName = info.getDstTransitionName();
+                        if ((sharedView != null) && (sharedName != null)) {
+                            fragmentTransaction.addSharedElement(sharedView, sharedName);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void addFragment(FragmentInfo fragmentInfo, boolean instant) {
@@ -418,17 +449,20 @@ public class TabStacker {
     public interface TabStackInterface {
         /**
          * called when a fragment is presented on screen (see PresentReason)
+         *
          * @param reason Reason why the fragment is presented
          */
         void onTabFragmentPresented(PresentReason reason);
 
         /**
          * called when a fragment is dismissed from the screen (see DismissReason)
+         *
          * @param reason Reason why the fragment is dismissed
          */
         void onTabFragmentDismissed(DismissReason reason);
 
         View onSaveTabFragmentInstance(Bundle outState);
+
         void onRestoreTabFragmentInstance(Bundle savedInstanceState);
     }
 
@@ -446,6 +480,7 @@ public class TabStacker {
 
     /**
      * Saves the TabStacker into a Bundle so that it can be retrieved later
+     *
      * @param outState Bundle where to save the TabStacker
      */
     public void saveInstance(Bundle outState) {
@@ -462,7 +497,7 @@ public class TabStacker {
             String stackSizeKey = tabName + BUNDLE_STACKSIZE_POSTFIX;
             stackBundle.putInt(stackSizeKey, stack.size());
             int index = 0;
-            for(FragmentInfo fragmentInfo : stack) {
+            for (FragmentInfo fragmentInfo : stack) {
                 String fragmentInfoKey = BUNDLE_FRAGMENT_PREFIX + index;
                 ++index;
                 Bundle infoBundle = fragmentInfo.saveInstance();
@@ -491,6 +526,7 @@ public class TabStacker {
     /**
      * Restore the TabStacker and push all the fragment for the current tab
      * Note that the view is not restored yet (it is not created yet at this moment)
+     *
      * @param savedInstanceState Bundle with the saved TabStacker to restore
      */
     public void restoreInstance(Bundle savedInstanceState) {
@@ -528,12 +564,13 @@ public class TabStacker {
 
     /**
      * Restores the View hierarchy
-     * @param fragment Fragment which holds the View
+     *
+     * @param fragment     Fragment which holds the View
      * @param fragmentView View to restore
      */
     public void restoreView(Fragment fragment, View fragmentView) {
         ArrayList<FragmentInfo> fragmentInfos = mStacks.get(mCurrentTab);
-        for(FragmentInfo fragmentInfo : fragmentInfos) {
+        for (FragmentInfo fragmentInfo : fragmentInfos) {
             if (fragmentInfo.mFragment == fragment) {
                 fragmentInfo.restoreView(fragmentView);
                 break;

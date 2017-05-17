@@ -20,6 +20,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.ViewCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,6 +28,9 @@ import android.view.ViewGroup;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import java.util.ArrayList;
+
+import fr.arnaudguyon.tabstacker.SharedTransitionInfo;
 import fr.arnaudguyon.tabstacker.TabStacker;
 
 /**
@@ -36,7 +40,7 @@ import fr.arnaudguyon.tabstacker.TabStacker;
  * The title is displayed at a random place
  */
 
-public class TabFragment extends Fragment implements TabStacker.TabStackInterface {
+public class TabFragment extends Fragment implements TabStacker.TabStackInterface, SharedTransitionInfo.TransitionInterface {
 
     private static final String TAG = "TabFragment";
 
@@ -46,6 +50,8 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
 
     // a reference to the view must be kept so that the view can be saved
     private View mView;
+
+    private ArrayList<SharedTransitionInfo> mSharedTransitionInfos = new ArrayList<>();
 
     // constructor
     public static TabFragment createInstance(String title, int color) {
@@ -61,7 +67,15 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         mView = inflater.inflate(R.layout.testfragment, container, false);
+
+        addSharedTransition(mView.findViewById(R.id.sharedElement), "iconTransition");
+
         return mView;
+    }
+
+    private void addSharedTransition(View sourceView, String destTransitionName) {
+        ViewCompat.setTransitionName(sourceView, destTransitionName);
+        mSharedTransitionInfos.add(new SharedTransitionInfo(sourceView, destTransitionName));
     }
 
     @Override
@@ -81,6 +95,15 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
         TextView titleView = (TextView) view.findViewById(R.id.titleView);
         titleView.setText(title);
         centerTitle(randomTop);
+        titleView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!isDetached()) {
+                    MainActivity activity = (MainActivity) getActivity();
+                    activity.onTitlePressed();
+                }
+            }
+        });
 
         // Asks the MainActivity to restore the View hierarchy (the activity holds the TabStacker)
         MainActivity activity = (MainActivity) getActivity();
@@ -148,6 +171,11 @@ public class TabFragment extends Fragment implements TabStacker.TabStackInterfac
     @Override
     public void onRestoreTabFragmentInstance(Bundle savedInstanceState) {
         // You could retrieve here some precious data that has been saved with onSaveTabFragmentInstance
+    }
+
+    @Override
+    public ArrayList<SharedTransitionInfo> getTransitionInfos() {
+        return mSharedTransitionInfos;
     }
 
 }

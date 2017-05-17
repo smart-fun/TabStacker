@@ -5,7 +5,7 @@ android {
     buildToolsVersion "25.0.1"
     defaultConfig {
         applicationId "fr.arnaudguyon.multitabstacks"
-        minSdkVersion 11
+        minSdkVersion 21
         targetSdkVersion 25
         versionCode 1
         versionName "0.8"
