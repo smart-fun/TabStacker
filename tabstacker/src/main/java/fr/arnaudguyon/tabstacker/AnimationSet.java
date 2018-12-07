@@ -16,8 +16,8 @@
 package fr.arnaudguyon.tabstacker;
 
 import android.os.Bundle;
-import android.support.annotation.AnimRes;
-import android.support.v4.app.FragmentTransaction;
+import androidx.annotation.AnimRes;
+import androidx.fragment.app.FragmentTransaction;
 
 /**
  * Holder for a set of animations (IN & OUT) for Fragment transitions
