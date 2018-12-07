@@ -8,7 +8,7 @@ Each Tab has its own stack of Fragments, that can be added, replaced or removed 
 
 When a complete stack is removed and restored (during a Tab change, or a system cleanup like when rotating the device), a **save and restore** mechanism allows you to keep your Fragments up-to-date.
 
-Tab Stacker uses **Support Fragments**. It is recommended to always use Support Fragments as they are compatible with older devices, and the last bugs are fixed for all devices. See how to migrate to Support Fragment in the **[wiki](https://github.com/smart-fun/TabStacker/wiki)**.
+Tab Stacker now uses **AndroidX Fragments**.
 
 ## How to use##
 
@@ -125,10 +125,10 @@ I recommend to use the Fragment.createInstance pattern instead of new Fragment, 
 
 ### Fragment Code ###
 
-Your Fragment must inherit from **Support Fragments** and implement the **TabStackInterface**.
+Your Fragment must inherit from **AndroidX Fragments** and implement the **TabStackInterface**.
 
 ```java
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 ```
 
 If your Fragment uses arguments, they will be automatically saved and restored.
@@ -248,7 +248,7 @@ Add the libary dependency to your **APP** build.gradle file
 
 ```
 dependencies {
-    implement 'com.github.smart-fun:TabStacker:1.0.4'    // add this line
+    implement 'com.github.smart-fun:TabStacker:1.1.0'    // add this line
 }
 ```
 
